@@ -1,26 +1,57 @@
 ---
 title: "index"
+author: "Zehui Li"
 format: html
 editor: visual
+code-line-numbers: true
+execute: 
+  warning: false
+urlcolor: blue
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+# Graph#1: China's Industrial Structure Changes in Different Provinces 1999-2021
 
 ```{r}
-1 + 1
+library("tidyverse")
+library("ggplot2")
+library("readxl")
+library(lubridate)
+library(gghighlight)
 ```
 
-You can add options to executable code like this
+load and prepare the data
+
+```{r}
+ind_strc<-read_excel("/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx")
+
+###Select the data to be used to form a new dataset
+ind_3_share<-ind_strc%>%
+  select(city,year,province,`Share of the Tertiary Sector in Gross Regional Product`,'Gross Regional Product (in billions of yuan)')%>%
+  rename(tertiary_share = `Share of the Tertiary Sector in Gross Regional Product`,
+         GRP = 'Gross Regional Product (in billions of yuan)')
+
+###Tertiary GDP and GRP total value per province per year by year
+ind_3_share<-ind_3_share%>%
+  mutate(tertiary = tertiary_share/100*GRP)%>%
+  group_by(province, year)%>%
+  summarize(total_tertiary = sum(tertiary, na.rm = TRUE),
+            total_GRP = sum(GRP, na.rm = TRUE))
+
+ind_3_share<-ind_3_share%>%
+  mutate(tshare=total_tertiary/total_GRP*100)
+
+ets_pilotcity<-ind_3_share%>%
+  filter(province %in% c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"))
+
+ets_pilotcity$year <- paste0(ets_pilotcity$year, "-01-01")
+
+```
+
+use ggplot to draw line chart
 
 ```{r}
 #| echo: false
-2 * 2
+
 ```
 
 The `echo: false` option disables the printing of code (only output is displayed).
