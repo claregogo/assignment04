@@ -9,7 +9,7 @@ execute:
 urlcolor: blue
 ---
 
-# Graph#1: China's Industrial Structure Changes in Different Provinces 1999-2021
+# Graph#1: The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
 
 ```{r}
 library("tidyverse")
@@ -17,9 +17,12 @@ library("ggplot2")
 library("readxl")
 library(lubridate)
 library(gghighlight)
+library(ggtext)
+library(showtext)
+
 ```
 
-load and prepare the data
+1. load and prepare the data
 
 ```{r}
 ind_strc<-read_excel("/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx")
@@ -44,13 +47,51 @@ ets_pilotcity<-ind_3_share%>%
   filter(province %in% c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"))
 
 ets_pilotcity$year <- paste0(ets_pilotcity$year, "-01-01")
+ets_pilotcity$year<-ymd(ets_pilotcity$year)
+class(ets_pilotcity$year)
+
+ets_pilotcity <- na.omit(ets_pilotcity)
 
 ```
-
-use ggplot to draw line chart
-
+2.use ggplot to draw line chart
+# The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
 ```{r}
-#| echo: false
+ets_pilotcity%>%
+  ggplot()+
+  geom_point(data = ets_pilotcity%>%
+               group_by(province)%>%
+               filter(year == "2013-01-01"),
+             aes(x=year,y=tshare,color=province),shape=6)+
+  geom_line(aes(x=year,y=tshare,color=province))+
+  gghighlight(use_direct_label = FALSE,
+              unhighlighted_params = list(colour="#d9d9d9"))+
+  geom_text(data = ets_pilotcity %>%
+              group_by(province)%>%
+              slice_max(year),
+            aes(x=year,y=tshare,label= round(tshare)),colour="#636363")+
+  scale_x_date(date_labels = "%y") +
+  facet_wrap(~  factor(province, levels=c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"))) +
+  labs(x="Year",
+       y="Tertiary Sector Share of GRP",
+       title="Changes in Industrial Structure in Six Chinese Provinces from 1999 to 2021",
+       subtitle = "Analysis of China's Emissions Trading Scheme Pilot Provinces",
+       caption = "Chinese City Statistical Yearbook")+
+  theme_minimal()+
+  theme(axis.title= element_text(size = 10,face = "plain"),
+        axis.text = element_text(size=6),
+        strip.text.x = element_text(size = 10,face="bold"),
+        legend.position = "none",
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"),
+        plot.background = element_rect(color = "#f0f9e8"))
+ggsave(filename = "graph1st.png")
+```
+3. nterpretation of visualizations
+[Figure1](/Users/macbookpro/assignment04/graph1st.png)
+```{r}
+#| label: The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
+#| fig-cap: "from 1999 to 2021, with missing data for 2017."
+#| warning: false
 
 ```
 
