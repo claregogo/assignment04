@@ -9,8 +9,7 @@ execute:
 urlcolor: blue
 ---
 
-# Graph#1: The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
-
+# library the packages
 ```{r}
 library("tidyverse")
 library("ggplot2")
@@ -19,49 +18,104 @@ library(lubridate)
 library(gghighlight)
 library(ggtext)
 library(showtext)
+library(viridisLite)
+library(ggh4x)
+library(geofacet)
 
 ```
 
-1. load and prepare the data
-
+# load and prepare the data
+* data for graph#1
 ```{r}
 ind_strc<-read_excel("/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx")
 
-###Select the data to be used to form a new dataset
+### select the data to be used
 ind_3_share<-ind_strc%>%
   select(city,year,province,`Share of the Tertiary Sector in Gross Regional Product`,'Gross Regional Product (in billions of yuan)')%>%
   rename(tertiary_share = `Share of the Tertiary Sector in Gross Regional Product`,
          GRP = 'Gross Regional Product (in billions of yuan)')
 
-###Tertiary GDP and GRP total value per province per year by year
+### calculate the gross tertiary production and GRP by province per year
 ind_3_share<-ind_3_share%>%
   mutate(tertiary = tertiary_share/100*GRP)%>%
   group_by(province, year)%>%
   summarize(total_tertiary = sum(tertiary, na.rm = TRUE),
             total_GRP = sum(GRP, na.rm = TRUE))
 
+### calculate the share of tertiary industrial production
 ind_3_share<-ind_3_share%>%
   mutate(tshare=total_tertiary/total_GRP*100)
 
+### select the ETS's pilot province
 ets_pilotcity<-ind_3_share%>%
   filter(province %in% c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"))
 
+### remove the missiong value
+ets_pilotcity<-ets_pilotcity%>%
+  filter(total_tertiary!=0)
+
+### change year in to times series formation
 ets_pilotcity$year <- paste0(ets_pilotcity$year, "-01-01")
 ets_pilotcity$year<-ymd(ets_pilotcity$year)
-class(ets_pilotcity$year)
 
+### remove the omit value
 ets_pilotcity <- na.omit(ets_pilotcity)
 
 ```
-2.use ggplot to draw line chart
-# The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
+* data for graph#2
+```{r}
+ind_strc<-read_excel("/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx")
+
+### select the useful column 
+diff_share<-ind_strc%>%
+  select(city,year,province,`Share of the Tertiary Sector in Gross Regional Product`,'Gross Regional Product (in billions of yuan)',"Share of the Secondary Sector in Gross Regional Product")%>%
+  rename(tertiary_share = "Share of the Tertiary Sector in Gross Regional Product",
+         secondary_share = "Share of the Secondary Sector in Gross Regional Product",
+         GRP = "Gross Regional Product (in billions of yuan)",
+         name = "province")
+
+### calculation of annual per-province total tertiary/secondary sector in GRP
+diff_share<-diff_share%>%
+  mutate(tertiary = tertiary_share/100*GRP,
+         secondary = secondary_share/100*GRP)%>%
+  group_by(name, year)%>%
+  summarize(total_tertiary = sum(tertiary, na.rm = TRUE),
+            total_secondary = sum(secondary, na.rm = TRUE))
+
+diff_share<-left_join(x=china_prov_grid1,y=diff_share)
+
+### change "year" into time series
+diff_share$year <- paste0(diff_share$year, "-01-01")
+diff_share$year<-ymd(diff_share$year)
+
+### remove the missing value
+diff_share_new<-diff_share%>%
+  filter(name %in% c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"),
+         total_tertiary!=0)
+```
+# interpretation of visualizations
+China's National Development and Reform Commission (NDRC) selected Beijing, Tianjin, Shanghai, Chongqing, Hubei, Guangdong, and Shenzhen as pilot provinces for the Carbon Emissions Trading Scheme (ETS) in 2013. ETS, which stands for Carbon Emissions Trading Scheme, aims to control greenhouse gas emissions, such as carbon dioxide, through market mechanisms, thus achieving emission control at a lower cost. However, as the world's largest carbon emitter and one of the largest developing countries, China's implementation of ETS serves the dual purpose of curbing carbon dioxide emissions and expediting the transformation of its economic development and industrial structure.
+
+Most evaluations of China's ETS policies primarily focus on emission reduction intensity and the outcomes of emission reduction efforts. Weiqing Huang et al.(2020) analyzed the ETS's effects, considering emission reduction impact and cost. They studied the carbon emission intensity reduction rate in both pilot and non-pilot regions of ETS. Their findings revealed that pilot regions achieved an average carbon intensity reduction rate of 7.3%, while non-pilot regions reached an average reduction rate of 4.29%. Although these results highlight the ETS's effectiveness in emission reduction, the question remains: has the ETS policy also contributed to industrial structural upgrading?
+
+Industrial structural upgrading is crucial for optimizing and improving the industrial landscape(Liu et al., 2008). It encompasses changes in the proportion of different industries and enhancements in labor productivity, reflecting improvements in 'structural efficiency.' Graph#1 employs the tertiary industry's share in Gross Regional Product (GRP) as a proxy for assessing changes in industrial structure. Conversely, Graph#2 compares the GRP of the secondary and tertiary industries. While Graph#1 uses the tertiary industry's GRP share to depict shifts in industrial structure, Graph#2 examines the differences between the GRPs of the secondary and tertiary sectors.
+
+BIBLIOGRAPHY
+[Weiqing Huang et al.(2020)](https://doi.org/10.1007/s11356-020-07818-0)
+[Liu et al.(2008)](https://doi.org/10.1007/s11356-020-07818-0)
+
+# use ggplot to draw line chart
+
+### Graph#1: Industrial Structure Changes in Six ETS Pilot Provinces from 1999 to 2021
+uses the tertiary industry's GRP share to depict shifts in industrial structure
 ```{r}
 ets_pilotcity%>%
   ggplot()+
-  geom_point(data = ets_pilotcity%>%
-               group_by(province)%>%
-               filter(year == "2013-01-01"),
-             aes(x=year,y=tshare,color=province),shape=6)+
+  geom_vline(data= diff_share_new%>%
+               group_by(name)%>%
+              filter(year=="2013-01-01"),
+               aes(xintercept=year),
+             linetype = "dashed", color = "#004643")+
   geom_line(aes(x=year,y=tshare,color=province))+
   gghighlight(use_direct_label = FALSE,
               unhighlighted_params = list(colour="#d9d9d9"))+
@@ -71,28 +125,57 @@ ets_pilotcity%>%
             aes(x=year,y=tshare,label= round(tshare)),colour="#636363")+
   scale_x_date(date_labels = "%y") +
   facet_wrap(~  factor(province, levels=c("Beijing","Tianjin","Shanghai", "Chongqing", "Hubei", "Guangdong"))) +
-  labs(x="Year",
-       y="Tertiary Sector Share of GRP",
-       title="Changes in Industrial Structure in Six Chinese Provinces from 1999 to 2021",
-       subtitle = "Analysis of China's Emissions Trading Scheme Pilot Provinces",
+  labs(x="(data for the year 2017 is missing) \nYear",
+       y="the Percentage of Tertiary Industry to GRP \n(Gross Region Product)",
+       title="Industrial Structure Changes in Six ETS Pilot Provinces from 1999 to 2021",
+       subtitle  = "'---'means ETS begins to be implemented ",
        caption = "Chinese City Statistical Yearbook")+
   theme_minimal()+
   theme(axis.title= element_text(size = 10,face = "plain"),
-        axis.text = element_text(size=6),
+        axis.text = element_text(size=7),
         strip.text.x = element_text(size = 10,face="bold"),
         legend.position = "none",
         plot.title = element_text(face = "bold"),
         plot.subtitle = element_text(face = "italic"),
         plot.background = element_rect(color = "#f0f9e8"))
-ggsave(filename = "graph1st.png")
 ```
-3. nterpretation of visualizations
-[Figure1](/Users/macbookpro/assignment04/graph1st.png)
+
+### Graph#2: The Difference between Total Tertiary Porduct vs Secondary Product \nby China's ETS pilot province frome 1999 to 2021
+examines the differences between the GRPs of the secondary and tertiary sectors
 ```{r}
-#| label: The Impact of China’s Emissions Trading Scheme on Pilot Provinces' Industrial Structure
-#| fig-cap: "from 1999 to 2021, with missing data for 2017."
-#| warning: false
-
+diff_share_new%>%
+  ggplot(aes(year))+
+  geom_vline(data= diff_share_new%>%
+               group_by(name)%>%
+              filter(year=="2013-01-01"),
+               aes(xintercept=year),
+             linetype = "dashed", color = "#004643")+
+  geom_line(aes(y=total_tertiary,color = "total_tertiary"))+
+  geom_line(aes(y=total_secondary,color = "total_secondary"))+
+  stat_difference(aes(ymin = total_tertiary, ymax = total_secondary),alpha = 0.3)+
+  ### free the y scale to demonstrate the impact of ETS on induction structure
+  facet_wrap(~ name,scales = "free_y",shrink = TRUE)+
+  scale_color_manual(values = c("#ff6e6c", "#67568c")) +
+  scale_fill_manual(
+    values = c(
+      colorspace::lighten("#ff6e6c"), 
+      colorspace::lighten("#67568c")),
+    labels = c("secondary product > \ntertiary product", "secondary product < \ntertiary product")
+  ) + 
+  scale_x_date(date_labels = "%y")+
+  labs(title = "The Difference between Total Tertiary Porduct vs Secondary Product \nby China's ETS pilot province frome 1999 to 2021",
+       subtitle = "'---'means ETS begins to be implemented ",
+       caption = "Source: Chinese City Statistical Yearbook",
+       x = "(data for the year 2017 is missing) \nYear",
+       y = "total secondary product vs total tertiary product ")+
+  theme_minimal()+
+  theme(axis.text.y = element_blank(),
+        strip.text.x = element_text(size = 10,face="bold"),
+        plot.background = element_rect(color = "#fef6e4"),
+        plot.title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"))
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+
+
