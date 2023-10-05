@@ -101,42 +101,184 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="graph1-chinas-industrial-structure-changes-in-different-provinces-1999-2021" class="level1">
-<h1>Graph#1: China’s Industrial Structure Changes in Different Provinces 1999-2021</h1>
+<section id="library-the-packages" class="level1">
+<h1>library the packages</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(<span class="st">"readxl"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(gghighlight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(gghighlight)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(ggtext)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="fu">library</span>(showtext)</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="fu">library</span>(viridisLite)</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="fu">library</span>(geofacet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>load and prepare the data</p>
+</section>
+<section id="load-and-prepare-the-data" class="level1">
+<h1>load and prepare the data</h1>
+<ul>
+<li>data for graph#1</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>ind_strc<span class="ot">&lt;-</span><span class="fu">read_excel</span>(<span class="st">"/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2"></a></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="do">###Select the data to be used to form a new dataset</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="do">### select the data to be used</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a>ind_3_share<span class="ot">&lt;-</span>ind_strc<span class="sc">%&gt;%</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">select</span>(city,year,province,<span class="st">`</span><span class="at">Share of the Tertiary Sector in Gross Regional Product</span><span class="st">`</span>,<span class="st">'Gross Regional Product (in billions of yuan)'</span>)<span class="sc">%&gt;%</span></span>
 <span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">rename</span>(<span class="at">tertiary_share =</span> <span class="st">`</span><span class="at">Share of the Tertiary Sector in Gross Regional Product</span><span class="st">`</span>,</span>
 <span id="cb2-7"><a href="#cb2-7"></a>         <span class="at">GRP =</span> <span class="st">'Gross Regional Product (in billions of yuan)'</span>)</span>
 <span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="do">###Tertiary GDP and GRP total value per province per year by year</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="do">### calculate the gross tertiary production and GRP by province per year</span></span>
 <span id="cb2-10"><a href="#cb2-10"></a>ind_3_share<span class="ot">&lt;-</span>ind_3_share<span class="sc">%&gt;%</span></span>
 <span id="cb2-11"><a href="#cb2-11"></a>  <span class="fu">mutate</span>(<span class="at">tertiary =</span> tertiary_share<span class="sc">/</span><span class="dv">100</span><span class="sc">*</span>GRP)<span class="sc">%&gt;%</span></span>
 <span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">group_by</span>(province, year)<span class="sc">%&gt;%</span></span>
 <span id="cb2-13"><a href="#cb2-13"></a>  <span class="fu">summarize</span>(<span class="at">total_tertiary =</span> <span class="fu">sum</span>(tertiary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb2-14"><a href="#cb2-14"></a>            <span class="at">total_GRP =</span> <span class="fu">sum</span>(GRP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
 <span id="cb2-15"><a href="#cb2-15"></a></span>
-<span id="cb2-16"><a href="#cb2-16"></a>ind_3_share<span class="ot">&lt;-</span>ind_3_share<span class="sc">%&gt;%</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a>  <span class="fu">mutate</span>(<span class="at">tshare=</span>total_tertiary<span class="sc">/</span>total_GRP<span class="sc">*</span><span class="dv">100</span>)</span>
-<span id="cb2-18"><a href="#cb2-18"></a></span>
-<span id="cb2-19"><a href="#cb2-19"></a>ets_pilotcity<span class="ot">&lt;-</span>ind_3_share<span class="sc">%&gt;%</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="fu">filter</span>(province <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Beijing"</span>,<span class="st">"Tianjin"</span>,<span class="st">"Shanghai"</span>, <span class="st">"Chongqing"</span>, <span class="st">"Hubei"</span>, <span class="st">"Guangdong"</span>))</span>
-<span id="cb2-21"><a href="#cb2-21"></a></span>
-<span id="cb2-22"><a href="#cb2-22"></a>ets_pilotcity<span class="sc">$</span>year <span class="ot">&lt;-</span> <span class="fu">paste0</span>(ets_pilotcity<span class="sc">$</span>year, <span class="st">"-01-01"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="do">### calculate the share of tertiary industrial production</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>ind_3_share<span class="ot">&lt;-</span>ind_3_share<span class="sc">%&gt;%</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>  <span class="fu">mutate</span>(<span class="at">tshare=</span>total_tertiary<span class="sc">/</span>total_GRP<span class="sc">*</span><span class="dv">100</span>)</span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="do">### select the ETS's pilot province</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>ets_pilotcity<span class="ot">&lt;-</span>ind_3_share<span class="sc">%&gt;%</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>  <span class="fu">filter</span>(province <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Beijing"</span>,<span class="st">"Tianjin"</span>,<span class="st">"Shanghai"</span>, <span class="st">"Chongqing"</span>, <span class="st">"Hubei"</span>, <span class="st">"Guangdong"</span>))</span>
+<span id="cb2-23"><a href="#cb2-23"></a></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="do">### remove the missiong value</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a>ets_pilotcity<span class="ot">&lt;-</span>ets_pilotcity<span class="sc">%&gt;%</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a>  <span class="fu">filter</span>(total_tertiary<span class="sc">!=</span><span class="dv">0</span>)</span>
+<span id="cb2-27"><a href="#cb2-27"></a></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="do">### change year in to times series formation</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>ets_pilotcity<span class="sc">$</span>year <span class="ot">&lt;-</span> <span class="fu">paste0</span>(ets_pilotcity<span class="sc">$</span>year, <span class="st">"-01-01"</span>)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>ets_pilotcity<span class="sc">$</span>year<span class="ot">&lt;-</span><span class="fu">ymd</span>(ets_pilotcity<span class="sc">$</span>year)</span>
+<span id="cb2-31"><a href="#cb2-31"></a></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="do">### remove the omit value</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>ets_pilotcity <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(ets_pilotcity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>use ggplot to draw line chart</p>
-<p>The <code>echo: false</code> option disables the printing of code (only output is displayed).</p>
+<ul>
+<li>data for graph#2</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>ind_strc<span class="ot">&lt;-</span><span class="fu">read_excel</span>(<span class="st">"/Users/macbookpro/Desktop/Chinese City Statistical Yearbook(partial).xlsx"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="do">### select the useful column </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>diff_share<span class="ot">&lt;-</span>ind_strc<span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="fu">select</span>(city,year,province,<span class="st">`</span><span class="at">Share of the Tertiary Sector in Gross Regional Product</span><span class="st">`</span>,<span class="st">'Gross Regional Product (in billions of yuan)'</span>,<span class="st">"Share of the Secondary Sector in Gross Regional Product"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">rename</span>(<span class="at">tertiary_share =</span> <span class="st">"Share of the Tertiary Sector in Gross Regional Product"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>         <span class="at">secondary_share =</span> <span class="st">"Share of the Secondary Sector in Gross Regional Product"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>         <span class="at">GRP =</span> <span class="st">"Gross Regional Product (in billions of yuan)"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9"></a>         <span class="at">name =</span> <span class="st">"province"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="do">### calculation of annual per-province total tertiary/secondary sector in GRP</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>diff_share<span class="ot">&lt;-</span>diff_share<span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="fu">mutate</span>(<span class="at">tertiary =</span> tertiary_share<span class="sc">/</span><span class="dv">100</span><span class="sc">*</span>GRP,</span>
+<span id="cb3-14"><a href="#cb3-14"></a>         <span class="at">secondary =</span> secondary_share<span class="sc">/</span><span class="dv">100</span><span class="sc">*</span>GRP)<span class="sc">%&gt;%</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="fu">group_by</span>(name, year)<span class="sc">%&gt;%</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="fu">summarize</span>(<span class="at">total_tertiary =</span> <span class="fu">sum</span>(tertiary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-17"><a href="#cb3-17"></a>            <span class="at">total_secondary =</span> <span class="fu">sum</span>(secondary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>diff_share<span class="ot">&lt;-</span><span class="fu">left_join</span>(<span class="at">x=</span>china_prov_grid1,<span class="at">y=</span>diff_share)</span>
+<span id="cb3-20"><a href="#cb3-20"></a></span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="do">### change "year" into time series</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a>diff_share<span class="sc">$</span>year <span class="ot">&lt;-</span> <span class="fu">paste0</span>(diff_share<span class="sc">$</span>year, <span class="st">"-01-01"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>diff_share<span class="sc">$</span>year<span class="ot">&lt;-</span><span class="fu">ymd</span>(diff_share<span class="sc">$</span>year)</span>
+<span id="cb3-24"><a href="#cb3-24"></a></span>
+<span id="cb3-25"><a href="#cb3-25"></a><span class="do">### remove the missing value</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a>diff_share_new<span class="ot">&lt;-</span>diff_share<span class="sc">%&gt;%</span></span>
+<span id="cb3-27"><a href="#cb3-27"></a>  <span class="fu">filter</span>(name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Beijing"</span>,<span class="st">"Tianjin"</span>,<span class="st">"Shanghai"</span>, <span class="st">"Chongqing"</span>, <span class="st">"Hubei"</span>, <span class="st">"Guangdong"</span>),</span>
+<span id="cb3-28"><a href="#cb3-28"></a>         total_tertiary<span class="sc">!=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="interpretation-of-visualizations" class="level1">
+<h1>interpretation of visualizations</h1>
+<p>China’s National Development and Reform Commission (NDRC) selected Beijing, Tianjin, Shanghai, Chongqing, Hubei, Guangdong, and Shenzhen as pilot provinces for the Carbon Emissions Trading Scheme (ETS) in 2013. ETS, which stands for Carbon Emissions Trading Scheme, aims to control greenhouse gas emissions, such as carbon dioxide, through market mechanisms, thus achieving emission control at a lower cost. However, as the world’s largest carbon emitter and one of the largest developing countries, China’s implementation of ETS serves the dual purpose of curbing carbon dioxide emissions and expediting the transformation of its economic development and industrial structure.</p>
+<p>Most evaluations of China’s ETS policies primarily focus on emission reduction intensity and the outcomes of emission reduction efforts. Weiqing Huang et al.(2020) analyzed the ETS’s effects, considering emission reduction impact and cost. They studied the carbon emission intensity reduction rate in both pilot and non-pilot regions of ETS. Their findings revealed that pilot regions achieved an average carbon intensity reduction rate of 7.3%, while non-pilot regions reached an average reduction rate of 4.29%. Although these results highlight the ETS’s effectiveness in emission reduction, the question remains: has the ETS policy also contributed to industrial structural upgrading?</p>
+<p>Industrial structural upgrading is crucial for optimizing and improving the industrial landscape(Liu et al., 2008). It encompasses changes in the proportion of different industries and enhancements in labor productivity, reflecting improvements in ‘structural efficiency.’ Graph#1 employs the tertiary industry’s share in Gross Regional Product (GRP) as a proxy for assessing changes in industrial structure. Conversely, Graph#2 compares the GRP of the secondary and tertiary industries. While Graph#1 uses the tertiary industry’s GRP share to depict shifts in industrial structure, Graph#2 examines the differences between the GRPs of the secondary and tertiary sectors.</p>
+<p>BIBLIOGRAPHY <a href="https://doi.org/10.1007/s11356-020-07818-0">Weiqing Huang et al.(2020)</a> <a href="https://doi.org/10.1007/s11356-020-07818-0">Liu et al.(2008)</a></p>
+</section>
+<section id="use-ggplot-to-draw-line-chart" class="level1">
+<h1>use ggplot to draw line chart</h1>
+<section id="graph1-industrial-structure-changes-in-six-ets-pilot-provinces-from-1999-to-2021" class="level3">
+<h3 class="anchored" data-anchor-id="graph1-industrial-structure-changes-in-six-ets-pilot-provinces-from-1999-to-2021">Graph#1: Industrial Structure Changes in Six ETS Pilot Provinces from 1999 to 2021</h3>
+<p>uses the tertiary industry’s GRP share to depict shifts in industrial structure</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>ets_pilotcity<span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">geom_vline</span>(<span class="at">data=</span> diff_share_new<span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>               <span class="fu">group_by</span>(name)<span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>              <span class="fu">filter</span>(year<span class="sc">==</span><span class="st">"2013-01-01"</span>),</span>
+<span id="cb4-6"><a href="#cb4-6"></a>               <span class="fu">aes</span>(<span class="at">xintercept=</span>year),</span>
+<span id="cb4-7"><a href="#cb4-7"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#004643"</span>)<span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>tshare,<span class="at">color=</span>province))<span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="fu">gghighlight</span>(<span class="at">use_direct_label =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-10"><a href="#cb4-10"></a>              <span class="at">unhighlighted_params =</span> <span class="fu">list</span>(<span class="at">colour=</span><span class="st">"#d9d9d9"</span>))<span class="sc">+</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> ets_pilotcity <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>              <span class="fu">group_by</span>(province)<span class="sc">%&gt;%</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>              <span class="fu">slice_max</span>(year),</span>
+<span id="cb4-14"><a href="#cb4-14"></a>            <span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>tshare,<span class="at">label=</span> <span class="fu">round</span>(tshare)),<span class="at">colour=</span><span class="st">"#636363"</span>)<span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_labels =</span> <span class="st">"%y"</span>) <span class="sc">+</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>  <span class="fu">factor</span>(province, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Beijing"</span>,<span class="st">"Tianjin"</span>,<span class="st">"Shanghai"</span>, <span class="st">"Chongqing"</span>, <span class="st">"Hubei"</span>, <span class="st">"Guangdong"</span>))) <span class="sc">+</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"(data for the year 2017 is missing) </span><span class="sc">\n</span><span class="st">Year"</span>,</span>
+<span id="cb4-18"><a href="#cb4-18"></a>       <span class="at">y=</span><span class="st">"the Percentage of Tertiary Industry to GRP </span><span class="sc">\n</span><span class="st">(Gross Region Product)"</span>,</span>
+<span id="cb4-19"><a href="#cb4-19"></a>       <span class="at">title=</span><span class="st">"Industrial Structure Changes in Six ETS Pilot Provinces </span><span class="sc">\n</span><span class="st">from 1999 to 2021"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20"></a>       <span class="at">subtitle  =</span> <span class="st">"'---'means ETS begins to be implemented "</span>,</span>
+<span id="cb4-21"><a href="#cb4-21"></a>       <span class="at">caption =</span> <span class="st">"Chinese City Statistical Yearbook"</span>)<span class="sc">+</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a>  <span class="fu">theme</span>(<span class="at">axis.title=</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,<span class="at">face =</span> <span class="st">"plain"</span>),</span>
+<span id="cb4-24"><a href="#cb4-24"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">7</span>),</span>
+<span id="cb4-25"><a href="#cb4-25"></a>        <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,<span class="at">face=</span><span class="st">"bold"</span>),</span>
+<span id="cb4-26"><a href="#cb4-26"></a>        <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb4-27"><a href="#cb4-27"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb4-28"><a href="#cb4-28"></a>        <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"italic"</span>),</span>
+<span id="cb4-29"><a href="#cb4-29"></a>        <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">"#f0f9e8"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> <span class="st">"graph1.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="graph2-the-difference-between-total-tertiary-porduct-vs-secondary-product-chinas-ets-pilot-province-frome-1999-to-2021" class="level3">
+<h3 class="anchored" data-anchor-id="graph2-the-difference-between-total-tertiary-porduct-vs-secondary-product-chinas-ets-pilot-province-frome-1999-to-2021">Graph#2: The Difference between Total Tertiary Porduct vs Secondary Product China’s ETS pilot province frome 1999 to 2021</h3>
+<p>examines the differences between the GRPs of the secondary and tertiary sectors</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>diff_share_new<span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(year))<span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">geom_vline</span>(<span class="at">data=</span> diff_share_new<span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>               <span class="fu">group_by</span>(name)<span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>              <span class="fu">filter</span>(year<span class="sc">==</span><span class="st">"2013-01-01"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>               <span class="fu">aes</span>(<span class="at">xintercept=</span>year),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#004643"</span>)<span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y=</span>total_tertiary,<span class="at">color =</span> <span class="st">"total_tertiary"</span>))<span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y=</span>total_secondary,<span class="at">color =</span> <span class="st">"total_secondary"</span>))<span class="sc">+</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>  <span class="fu">stat_difference</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> total_tertiary, <span class="at">ymax =</span> total_secondary),<span class="at">alpha =</span> <span class="fl">0.3</span>)<span class="sc">+</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>  <span class="do">### free the y scale to demonstrate the impact of ETS on induction structure</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> name,<span class="at">scales =</span> <span class="st">"free_y"</span>,<span class="at">shrink =</span> <span class="cn">TRUE</span>)<span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#ff6e6c"</span>, <span class="st">"#67568c"</span>)) <span class="sc">+</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb6-16"><a href="#cb6-16"></a>      colorspace<span class="sc">::</span><span class="fu">lighten</span>(<span class="st">"#ff6e6c"</span>), </span>
+<span id="cb6-17"><a href="#cb6-17"></a>      colorspace<span class="sc">::</span><span class="fu">lighten</span>(<span class="st">"#67568c"</span>)),</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"secondary product &gt; </span><span class="sc">\n</span><span class="st">tertiary product"</span>, <span class="st">"secondary product &lt; </span><span class="sc">\n</span><span class="st">tertiary product"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  ) <span class="sc">+</span> </span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_labels =</span> <span class="st">"%y"</span>)<span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The Difference between Total Tertiary Porduct vs Secondary Product by China's ETS pilot province </span><span class="sc">\n</span><span class="st">from 1999 to 2021"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22"></a>       <span class="at">subtitle =</span> <span class="st">"'---'means ETS begins to be implemented "</span>,</span>
+<span id="cb6-23"><a href="#cb6-23"></a>       <span class="at">caption =</span> <span class="st">"Source: Chinese City Statistical Yearbook"</span>,</span>
+<span id="cb6-24"><a href="#cb6-24"></a>       <span class="at">x =</span> <span class="st">"(data for the year 2017 is missing) </span><span class="sc">\n</span><span class="st">Year"</span>,</span>
+<span id="cb6-25"><a href="#cb6-25"></a>       <span class="at">y =</span> <span class="st">"total secondary product vs total tertiary product "</span>)<span class="sc">+</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb6-28"><a href="#cb6-28"></a>        <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,<span class="at">face=</span><span class="st">"bold"</span>),</span>
+<span id="cb6-29"><a href="#cb6-29"></a>        <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">"#fef6e4"</span>),</span>
+<span id="cb6-30"><a href="#cb6-30"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb6-31"><a href="#cb6-31"></a>        <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"italic"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> <span class="st">"Graph#2.png"</span>, <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 </section>
 
 </main>
