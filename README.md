@@ -7,7 +7,8 @@ Most evaluations of China’s ETS policies primarily focus on emission reduction
 
 Industrial structural upgrading is crucial for optimizing and improving the industrial landscape(Liu et al., 2008). It encompasses changes in the proportion of different industries and enhancements in labor productivity, reflecting improvements in ‘structural efficiency.’ Graph#1 employs the tertiary industry’s share in Gross Regional Product (GRP) as a proxy for assessing changes in industrial structure. Conversely, Graph#2 compares the GRP of the secondary and tertiary industries. While Graph#1 uses the tertiary industry’s GRP share to depict shifts in industrial structure, Graph#2 examines the differences between the GRPs of the secondary and tertiary sectors.
 
-BIBLIOGRAPHY [Weiqing Huang et al.(2020)](https://doi.org/10.1007/s11356-020-07818-0) Liu et al.(2008)(https://doi.org/10.1007/s11356-020-07818-0)
+BIBLIOGRAPHY [Weiqing Huang et al.(2020)](https://doi.org/10.1007/s11356-020-07818-0) 
+             [Liu et al.(2008)](https://doi.org/10.1007/s11356-020-07818-0)
 ## Interpretation of Graph 3
 
 The purpose of this visualization is to show the age distribution of full-time teachers in higher education institutions in China in 2021. The graph displays the proportion of teachers in five different age groups (29 and Under, 30-39, 40-49, 50-59, and 60 and Over) across different types of higher education institutions. This graph shows that professional higher education institutions have a higher proportion of full-time teachers over the age of 60 compared to other HEIs, and other institutions have a higher proportion of teachers under 29 years old range. This may suggest differences in career trajectories or recruitment strategies for these institutions.
