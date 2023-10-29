@@ -8,16 +8,17 @@ Most evaluations of China’s ETS policies primarily focus on emission reduction
 
 Industrial structural upgrading is crucial for optimizing and improving the industrial landscape(Liu et al., 2008). It encompasses changes in the proportion of different industries and enhancements in labor productivity, reflecting improvements in ‘structural efficiency.’ Graph#1 employs the tertiary industry’s share in Gross Regional Product (GRP) as a proxy for assessing changes in industrial structure. Conversely, Graph#2 compares the GRP of the secondary and tertiary industries. While Graph#1 uses the tertiary industry’s GRP share to depict shifts in industrial structure, Graph#2 examines the differences between the GRPs of the secondary and tertiary sectors.
 ![Graph1](https://github.com/claregogo/assignment04/assets/145402329/197de714-adf2-4c44-b62d-5d374281ac93)
+![Graph2](https://github.com/claregogo/assignment04/assets/145402329/b0dd4375-ca1e-4ce7-bbc0-7402f05cd8e0)
 BIBLIOGRAPHY [Weiqing Huang et al.(2020)](https://doi.org/10.1007/s11356-020-07818-0) 
              [Liu et al.(2008)](https://doi.org/10.1007/s11356-020-07818-0)
 ## Interpretation of Graph 3
 
 The purpose of this visualization is to show the age distribution of full-time teachers in higher education institutions in China in 2021. The graph displays the proportion of teachers in five different age groups (29 and Under, 30-39, 40-49, 50-59, and 60 and Over) across different types of higher education institutions. This graph shows that professional higher education institutions have a higher proportion of full-time teachers over the age of 60 compared to other HEIs, and other institutions have a higher proportion of teachers under 29 years old range. This may suggest differences in career trajectories or recruitment strategies for these institutions.
-
+![Graph3](https://github.com/claregogo/assignment04/assets/145402329/a2ddf2ee-d8f7-4504-b4ac-810ee35266e0)
 Data Source: [Ministry of Eduacation of China.](http://www.moe.gov.cn/jyb_sjzl/moe_560/2021/quanguo/202301/t20230103_1037945.html)
 
 ## Interpretation of Graph 4
 
 The data in this visualization are the percentages of all full-time female teachers in each type and level of school in 2021, and we can see that across the teaching profession as a whole, the percentage of female teachers is higher than that of male teachers, which most of the percentage is higher than 50%. It shows that overall higher education institutions have a lower percentage of female teachers on average than other types of schools. The percentage of male teachers is higher than the percentage of female teachers in special schools and Adult Primary and Secondary Schools. This graph is intended to be used by policymakers or scholars interested in education to observe these phenomena and patterns and to inform and assist in future policymaking.
-
+![Graph4](https://github.com/claregogo/assignment04/assets/145402329/f2893c89-ea2d-4255-a540-db2becf62737)
 Data Source: [Ministry of Eduacation of China.](http://www.moe.gov.cn/jyb_sjzl/moe_560/2021/quanguo/202301/t20230104_1038057.html)
